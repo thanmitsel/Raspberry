@@ -23,84 +23,43 @@ LED_CHANNEL    = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
 
 # Define functions which animate LEDs in various ways.
 def light_more_than_one(strip, idx, pad, color):
-    """Light a subset of the led strips"""
+    """Light a subset (window) of the led strips"""
     for led in range(idx-pad, idx+pad+1):
         strip.setPixelColor(led, color)
     strip.show()
 
-def select_color(rgb_day, rgb_night, pad, way):
+def select_color(rgb_start, rgb_end, pad, LED_count):
     """Outputs a list with all range of colors of rgb"""
     rgb_list = []
-    for color in range(rgb_day):
-       diff = rgb_day[color] - rgb_night[color]
-       step = diff/len(way)
-       rbg_list.append([i*step+rgb_night[color] for i in range(len(way)+pad)])
+    for color in range(len(rgb_start)):
+       diff = rgb_end[color] - rgb_start[color]
+       step = diff/LED_count
+       rgb_list.append([i*step+rgb_start[color] for i in range(LED_count)])
     return rgb_list
 
 def dayNight(strip, pad=1, sec=1):
-    """Two-way light from white to yellow and backwards"""
-    two_way_count = [range(pad, strip.numPixels()-pad), range(strip.numPixels()-pad, 0+pad, -1)]
+    """Rolling Window from one color to another and backwards"""
+    RGB_before = [255, 255, 0] # Yellow
+    RGB_after = [255, 255, 255] # White
+    rgb_list = select_color(RGB_before, RGB_after, pad, strip.numPixels())
+    two_way_count = [range(pad, strip.numPixels()-pad), range(strip.numPixels()-pad-1, 0+pad-1, -1)]
     for way in two_way_count:
-        RGB_beforo = [255, 255, 0] # Yellow
-        RGB_after = [255, 255, 255] # White
-        select_color()
         for i in way:
-            if i < int(strip._led_data.size/2):
-                color = Color(255, 255, 0)
-            else:
-                color = Color(255, 255, 255)
-            light_more_than_one(strip, i, pad, color)
-            time.sleep(sec/1.8)
-            light_more_than_one(strip, i, pad, Color(0, 0, 0))
+            light_more_than_one(strip, i, pad, Color(rgb_list[0][i], rgb_list[1][i], rgb_list[2][i])) # Turn on
+            time.sleep(0.4)
+            light_more_than_one(strip, i, pad, Color(0, 0, 0)) # Turn off
 
-def theaterChase(strip, color, wait_ms=50, iterations=10):
-    """Movie theater light style chaser animation."""
-    for j in range(iterations):
-        for q in range(3):
-            for i in range(0, strip.numPixels(), 3):
-                strip.setPixelColor(i+q, color)
+def multi_wipe(strip, sec=1):
+    range_list = [range(strip.numPixels()), range(strip.numPixels()), range(strip.numPixels()-1, 0-1, -1), range(strip.numPixels()-1, 0-1, -1)]
+    for count, way in enumerate(range_list):
+        if (count+1)%2==0:
+            color = Color(0,0,0)
+        else:
+            color = Color(255, 255, 255)
+        for i in way:
+            strip.setPixelColor(i, color)
             strip.show()
-            time.sleep(wait_ms/1000.0)
-            for i in range(0, strip.numPixels(), 3):
-                strip.setPixelColor(i+q, 0)
-
-def wheel(pos):
-    """Generate rainbow colors across 0-255 positions."""
-    if pos < 85:
-        return Color(pos * 3, 255 - pos * 3, 0)
-    elif pos < 170:
-        pos -= 85
-        return Color(255 - pos * 3, 0, pos * 3)
-    else:
-        pos -= 170
-        return Color(0, pos * 3, 255 - pos * 3)
-
-def rainbow(strip, wait_ms=20, iterations=1):
-    """Draw rainbow that fades across all pixels at once."""
-    for j in range(256*iterations):
-        for i in range(strip.numPixels()):
-            strip.setPixelColor(i, wheel((i+j) & 255))
-        strip.show()
-        time.sleep(wait_ms/1000.0)
-
-def rainbowCycle(strip, wait_ms=20, iterations=5):
-    """Draw rainbow that uniformly distributes itself across all pixels."""
-    for j in range(256*iterations):
-        for i in range(strip.numPixels()):
-            strip.setPixelColor(i, wheel((int(i * 256 / strip.numPixels()) + j) & 255))
-        strip.show()
-        time.sleep(wait_ms/1000.0)
-
-def theaterChaseRainbow(strip, wait_ms=50):
-    """Rainbow movie theater light style chaser animation."""
-    for j in range(256):
-        for q in range(3):
-            for i in range(0, strip.numPixels(), 3):
-                strip.setPixelColor(i+q, wheel((i+j) % 255))
-            strip.show()
-            time.sleep(wait_ms/1000.0)
-            for i in range(0, strip.numPixels(), 3):
-                strip.setPixelColor(i+q, 0)
+            time.sleep(0.2)
 
 # Main program logic follows:
 if __name__ == '__main__':
@@ -122,7 +81,9 @@ if __name__ == '__main__':
 
         while True:
             print ('Day-Light animations.')
-            dayNight(strip)  # Red wipe
+            dayNight(strip)  # Window wipe
+            print('Multiple wipe animation')
+            multi_wipe(strip) # Multiple wipe
 
     except KeyboardInterrupt:
         if args.clear:
