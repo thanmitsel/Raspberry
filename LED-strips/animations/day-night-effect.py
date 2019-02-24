@@ -37,7 +37,7 @@ def select_color(rgb_start, rgb_end, pad, LED_count):
        rgb_list.append([i*step+rgb_start[color] for i in range(LED_count)])
     return rgb_list
 
-def dayNight(strip, pad=1, sec=1):
+def dayNight(strip, pad=1, sec=0.05):
     """Rolling Window from one color to another and backwards"""
     RGB_before = [255, 255, 0] # Yellow
     RGB_after = [255, 255, 255] # White
@@ -46,20 +46,22 @@ def dayNight(strip, pad=1, sec=1):
     for way in two_way_count:
         for i in way:
             light_more_than_one(strip, i, pad, Color(rgb_list[0][i], rgb_list[1][i], rgb_list[2][i])) # Turn on
-            time.sleep(0.4)
+            time.sleep(sec)
             light_more_than_one(strip, i, pad, Color(0, 0, 0)) # Turn off
 
-def multi_wipe(strip, sec=1):
+def multi_wipe(strip, sec=0.05):
+    RGB_before = [255, 255, 0] # Yellow
+    RGB_after = [255, 255, 255] # White
+    rgb_list = select_color(RGB_before, RGB_after, 0, strip.numPixels()) 
     range_list = [range(strip.numPixels()), range(strip.numPixels()), range(strip.numPixels()-1, 0-1, -1), range(strip.numPixels()-1, 0-1, -1)]
     for count, way in enumerate(range_list):
-        if (count+1)%2==0:
-            color = Color(0,0,0)
-        else:
-            color = Color(255, 255, 255)
         for i in way:
-            strip.setPixelColor(i, color)
+            if (count+1)%2!=0:
+                strip.setPixelColor(i, Color(rgb_list[0][i], rgb_list[1][i], rgb_list[2][i]))
+            else:
+                 strip.setPixelColor(i,Color(0, 0, 0))
             strip.show()
-            time.sleep(0.2)
+            time.sleep(sec)
 
 # Main program logic follows:
 if __name__ == '__main__':
