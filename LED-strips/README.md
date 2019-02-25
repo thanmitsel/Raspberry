@@ -19,7 +19,7 @@
 * Connect the 12th GPIO (GPIO18), which has PWM capabilies
 * Connect the 6th GPIO (GROUND)
 
-![alt text](https://github.com/thanmitsel/Raspberry/blob/master/LED-strips/images/Raspberry-Pi-WS2812-Steckplatine-600x361.png)
+![alt text](https://github.com/thanmitsel/Raspberry/blob/master/LED-strips/images/raspberry-pi-updated-schematic.png)
 
 ## Software
 ### Required Software
