@@ -16,7 +16,10 @@
 * Tools to strip wires
 
 ### Conecting Raspberry with LED strip
-* Connect the 18th GPIO, which has PWM capabilies
+* Connect the 12th GPIO (GPIO18), which has PWM capabilies
+* Connect the 6th GPIO (GROUND)
+
+![alt text](https://github.com/thanmitsel/Raspberry/blob/master/LED-strips/images/Raspberry-Pi-WS2812-Steckplatine-600x361.png)
 
 ## Software
 ### Required Software
@@ -42,6 +45,9 @@
 6. If any problem occurs with libraries you can always search for the package with pip.
 > pip3 search neopixel
 
+## Appendix
+### GPIO mapping
+![alt text](https://github.com/thanmitsel/Raspberry/blob/master/LED-strips/images/1_QYLB4A45Rp6CUBdc5J48fw.png)
 
 *References*
 1. https://tutorials-raspberrypi.com/connect-control-raspberry-pi-ws2812-rgb-led-strips/
